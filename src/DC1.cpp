@@ -171,71 +171,104 @@ void DC1::mqttConnected()
 
 void DC1::mqttDiscovery(bool isEnable)
 {
-    char topic[50];
-    char message[500];
+    char topic[100];
+    char message[700];
 
     String availability = Mqtt::getTeleTopic(F("availability"));
     char cmndTopic[100];
     strcpy(cmndTopic, Mqtt::getCmndTopic(F("power1")).c_str());
+
+    // Build device info JSON (shared by all entities)
+    char deviceInfo[200];
+    snprintf_P(deviceInfo, sizeof(deviceInfo),
+               PSTR("\"device\":{\"identifiers\":[\"%s\"],\"name\":\"%s\",\"model\":\"DC1\",\"manufacturer\":\"PHICOMM\"}"),
+               UID, UID);
+
     for (size_t ch = 0; ch < channels; ch++)
     {
-        sprintf(topic, PSTR("%s/switch/%s_%d/config"), globalConfig.mqtt.discovery_prefix, UID, (ch + 1));
+        sprintf(topic, PSTR("%s/switch/%s-%d/config"), globalConfig.mqtt.discovery_prefix, UID, (ch + 1));
         if (isEnable)
         {
             cmndTopic[strlen(cmndTopic) - 1] = ch + 49;           // 48 + 1 + ch
             powerStatTopic[strlen(powerStatTopic) - 1] = ch + 49; // 48 + 1 + ch
             sprintf(message,
-                    PSTR("{\"name\":\"%s_%d\","
+                    PSTR("{\"name\":\"%s\","
+                         "\"unique_id\":\"%s_power%d\","
                          "\"cmd_t\":\"%s\","
                          "\"stat_t\":\"%s\","
                          "\"pl_off\":\"off\","
                          "\"pl_on\":\"on\","
-                         "\"avty_t\":\"%s\","
-                         "\"pl_avail\":\"online\","
-                         "\"pl_not_avail\":\"offline\"}"),
+                         "%s,"
+                         "\"availability\":[{\"topic\":\"%s\",\"payload_available\":\"online\",\"payload_not_available\":\"offline\"}],"
+                         "\"availability_mode\":\"latest\"}"),
+                    ch == 0 ? "总开关" : (ch == 1 ? "开关1" : (ch == 2 ? "开关2" : "开关3")),
                     UID, (ch + 1),
                     cmndTopic,
                     powerStatTopic,
+                    deviceInfo,
                     availability.c_str());
             Mqtt::publish(topic, message, true);
-            //Debug::AddInfo(PSTR("discovery: %s - %s"), topic, message);
         }
         else
         {
+            // 清除新格式
+            Mqtt::publish(topic, "", true);
+            // 清除旧格式 (兼容旧版本)
+            sprintf(topic, PSTR("%s/switch/%s_%d/config"), globalConfig.mqtt.discovery_prefix, UID, (ch + 1));
             Mqtt::publish(topic, "", true);
         }
     }
 
-    String tims[] = {F("voltage"), F("current"), F("power"), F("apparent_power"), F("reactive_power"), F("factor"), F("total"), F("yesterday"), F("today"), F("starttime")};
+    String tims[] = {F("电压"), F("电流"), F("实时功率"), F("视在功率"), F("无功功率"), F("功率因数"), F("总用电量"), F("昨日用电量"), F("今日用电量"), F("开始时间")};
+    String timsId[] = {F("voltage"), F("current"), F("power"), F("apparent_power"), F("reactive_power"), F("factor"), F("total"), F("yesterday"), F("today"), F("starttime")};
     String tims2[] = {F("V"), F("A"), F("W"), F("VA"), F("VAr"), F(""), F("kWh"), F("kWh"), F("kWh"), F("")};
     String energy = Mqtt::getTeleTopic(F("energy"));
     for (size_t i = 0; i < 10; i++)
     {
-        sprintf(topic, PSTR("%s/sensor/%s_%s/config"), globalConfig.mqtt.discovery_prefix, UID, tims[i].c_str());
+        sprintf(topic, PSTR("%s/sensor/%s-%s/config"), globalConfig.mqtt.discovery_prefix, UID, timsId[i].c_str());
         if (isEnable)
         {
             if (tims2[i].length() == 0)
             {
                 sprintf(message,
-                        PSTR("{\"name\":\"%s_%s\","
+                        PSTR("{\"name\":\"%s\","
+                             "\"unique_id\":\"%s_%s\","
                              "\"stat_t\":\"%s\","
-                             "\"val_tpl\":\"{{value_json.%s}}\"}"),
-                        UID, tims[i].c_str(), energy.c_str(), tims[i].c_str());
+                             "\"val_tpl\":\"{{value_json.%s}}\","
+                             "%s,"
+                             "\"availability\":[{\"topic\":\"%s\",\"payload_available\":\"online\",\"payload_not_available\":\"offline\"}],"
+                             "\"availability_mode\":\"latest\"}"),
+                        tims[i].c_str(),
+                        UID, timsId[i].c_str(),
+                        energy.c_str(), timsId[i].c_str(),
+                        deviceInfo,
+                        availability.c_str());
             }
             else
             {
                 sprintf(message,
-                        PSTR("{\"name\":\"%s_%s\","
+                        PSTR("{\"name\":\"%s\","
+                             "\"unique_id\":\"%s_%s\","
                              "\"stat_t\":\"%s\","
                              "\"val_tpl\":\"{{value_json.%s}}\","
-                             "\"unit_of_meas\":\"%s\"}"),
-                        UID, tims[i].c_str(), energy.c_str(), tims[i].c_str(), tims2[i].c_str());
+                             "\"unit_of_meas\":\"%s\","
+                             "%s,"
+                             "\"availability\":[{\"topic\":\"%s\",\"payload_available\":\"online\",\"payload_not_available\":\"offline\"}],"
+                             "\"availability_mode\":\"latest\"}"),
+                        tims[i].c_str(),
+                        UID, timsId[i].c_str(),
+                        energy.c_str(), timsId[i].c_str(), tims2[i].c_str(),
+                        deviceInfo,
+                        availability.c_str());
             }
             Mqtt::publish(topic, message, true);
-            //Debug::AddInfo(PSTR("discovery: %s - %s"), topic, message);
         }
         else
         {
+            // 清除新格式
+            Mqtt::publish(topic, "", true);
+            // 清除旧格式 (兼容旧版本)
+            sprintf(topic, PSTR("%s/sensor/%s_%s/config"), globalConfig.mqtt.discovery_prefix, UID, timsId[i].c_str());
             Mqtt::publish(topic, "", true);
         }
     }
