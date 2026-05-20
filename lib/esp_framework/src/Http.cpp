@@ -31,7 +31,7 @@ void Http::handleRoot()
     server->sendContent(module ? module->getModuleCNName() : F("修复模式"));
     server->sendContent_P(HTTP_HTML_NAV_START);
 #ifdef WEB_LOG_SIZE
-    server->sendContent_P(PSTR("<button onclick='tab(5)'>日志</button>"));
+    server->sendContent_P(PSTR("<button onclick='tab(6)'>日志</button>"));
 #endif
     server->sendContent_P(HTTP_HTML_NAV_END);
 
@@ -132,11 +132,6 @@ void Http::handleRoot()
 
     server->sendContent_P(HTTP_HTML_TAB3_MODULE_START);
 
-    snprintf_P(tmpData, sizeof(tmpData), PSTR("<tr><td>Web用户名</td><td><input type='text' name='http_username' value='%s' maxlength='14'>&nbsp;留空关闭认证</td></tr>"
-                                               "<tr><td>Web密码</td><td><input type='password' name='http_password' value='%s' maxlength='14'></td></tr>"),
-               globalConfig.http.user, globalConfig.http.pass);
-    server->sendContent_P(tmpData);
-
     snprintf_P(tmpData, sizeof(tmpData), PSTR("<tr><td>主机名</td><td><input type='text' name='uid' value='%s'>&nbsp;具有唯一性，留空默认</td></tr>"), UID);
     server->sendContent_P(tmpData);
 
@@ -168,6 +163,17 @@ void Http::handleRoot()
 
     server->sendContent_P(HTTP_HTML_TAB3_MODULE_END);
     // TAB 3 End
+
+    // TAB Security Start
+    server->sendContent_P(HTTP_HTML_TAB_SECURITY_START);
+
+    snprintf_P(tmpData, sizeof(tmpData), PSTR("<tr><td>Web用户名</td><td><input type='text' name='http_username' value='%s' maxlength='14'>&nbsp;留空关闭认证</td></tr>"
+                                               "<tr><td>Web密码</td><td><input type='password' name='http_password' value='%s' maxlength='14'></td></tr>"),
+               globalConfig.http.user, globalConfig.http.pass);
+    server->sendContent_P(tmpData);
+
+    server->sendContent_P(HTTP_HTML_TAB_SECURITY_END);
+    // TAB Security End
 
     // TAB 4 Start
     server->sendContent_P(HTTP_HTML_TAB4_START);

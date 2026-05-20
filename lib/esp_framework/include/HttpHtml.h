@@ -18,6 +18,8 @@ extern const char HTTP_HTML_TAB2_END[] PROGMEM;
 extern const char HTTP_HTML_TAB3_START[] PROGMEM;
 extern const char HTTP_HTML_TAB3_MODULE_START[] PROGMEM;
 extern const char HTTP_HTML_TAB3_MODULE_END[] PROGMEM;
+extern const char HTTP_HTML_TAB_SECURITY_START[] PROGMEM;
+extern const char HTTP_HTML_TAB_SECURITY_END[] PROGMEM;
 extern const char HTTP_HTML_TAB4_START[] PROGMEM;
 extern const char HTTP_HTML_TAB4_OTA[] PROGMEM;
 extern const char HTTP_HTML_TAB5[] PROGMEM;
