@@ -2,7 +2,6 @@
 #include "Rtc.h"
 #include "sntp.h"
 #include "Debug.h"
-#include "BuildInfo.h"
 
 RtcReboot Rtc::rtcReboot;
 uint32_t Rtc::rtcRebootCrc = 0;

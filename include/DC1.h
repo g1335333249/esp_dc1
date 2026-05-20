@@ -4,7 +4,6 @@
 
 #include "DC1Config.pb.h"
 #include "Module.h"
-#include "BuildInfo.h"
 #include "CAT9554.h"
 #include "CSE7766.h"
 
