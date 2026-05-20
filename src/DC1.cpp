@@ -543,7 +543,7 @@ void DC1::logoLed()
 
 void DC1::switchRelay(uint8_t ch, bool isOn, bool isSave)
 {
-    if (ch > channels)
+    if (ch >= channels)
     {
         Debug::AddInfo(PSTR("invalid channel: %d"), ch);
         return;
