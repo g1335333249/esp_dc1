@@ -13,6 +13,9 @@ static const char kMonthNamesEnglish[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
 
 String Rtc::GetBuildDateAndTime()
 {
+#ifdef BUILD_DATE
+    return F(BUILD_DATE);
+#else
     // "2017-03-07T11:08:02" - ISO8601:2004
     char bdt[21];
     char *p;
@@ -40,6 +43,7 @@ String Rtc::GetBuildDateAndTime()
     int month = (strstr(kMonthNamesEnglish, smonth) - kMonthNamesEnglish) / 3 + 1;
     snprintf_P(bdt, sizeof(bdt), PSTR("%d-%02d-%02d %s"), year, month, day, __TIME__);
     return String(bdt); // 2017-03-07T11:08:02
+#endif
 }
 
 String Rtc::msToHumanString(uint32_t const msecs)
