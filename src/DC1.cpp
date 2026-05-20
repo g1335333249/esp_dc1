@@ -186,12 +186,12 @@ void DC1::mqttDiscovery(bool isEnable)
 
     for (size_t ch = 0; ch < channels; ch++)
     {
-        sprintf(topic, PSTR("%s/switch/%s-%d/config"), globalConfig.mqtt.discovery_prefix, UID, (ch + 1));
+        snprintf_P(topic, sizeof(topic), PSTR("%s/switch/%s-%d/config"), globalConfig.mqtt.discovery_prefix, UID, (ch + 1));
         if (isEnable)
         {
             cmndTopic[strlen(cmndTopic) - 1] = ch + 49;           // 48 + 1 + ch
             powerStatTopic[strlen(powerStatTopic) - 1] = ch + 49; // 48 + 1 + ch
-            sprintf(message,
+            snprintf_P(message, sizeof(message),
                     PSTR("{\"name\":\"%s\","
                          "\"unique_id\":\"%s_power%d\","
                          "\"cmd_t\":\"%s\","
@@ -214,7 +214,7 @@ void DC1::mqttDiscovery(bool isEnable)
             // 清除新格式
             Mqtt::publish(topic, "", true);
             // 清除旧格式 (兼容旧版本)
-            sprintf(topic, PSTR("%s/switch/%s_%d/config"), globalConfig.mqtt.discovery_prefix, UID, (ch + 1));
+            snprintf_P(topic, sizeof(topic), PSTR("%s/switch/%s_%d/config"), globalConfig.mqtt.discovery_prefix, UID, (ch + 1));
             Mqtt::publish(topic, "", true);
         }
     }
@@ -225,12 +225,12 @@ void DC1::mqttDiscovery(bool isEnable)
     String energy = Mqtt::getTeleTopic(F("energy"));
     for (size_t i = 0; i < 10; i++)
     {
-        sprintf(topic, PSTR("%s/sensor/%s-%s/config"), globalConfig.mqtt.discovery_prefix, UID, timsId[i].c_str());
+        snprintf_P(topic, sizeof(topic), PSTR("%s/sensor/%s-%s/config"), globalConfig.mqtt.discovery_prefix, UID, timsId[i].c_str());
         if (isEnable)
         {
             if (tims2[i].length() == 0)
             {
-                sprintf(message,
+                snprintf_P(message, sizeof(message),
                         PSTR("{\"name\":\"%s\","
                              "\"unique_id\":\"%s_%s\","
                              "\"stat_t\":\"%s\","
@@ -246,7 +246,7 @@ void DC1::mqttDiscovery(bool isEnable)
             }
             else
             {
-                sprintf(message,
+                snprintf_P(message, sizeof(message),
                         PSTR("{\"name\":\"%s\","
                              "\"unique_id\":\"%s_%s\","
                              "\"stat_t\":\"%s\","
@@ -268,7 +268,7 @@ void DC1::mqttDiscovery(bool isEnable)
             // 清除新格式
             Mqtt::publish(topic, "", true);
             // 清除旧格式 (兼容旧版本)
-            sprintf(topic, PSTR("%s/sensor/%s_%s/config"), globalConfig.mqtt.discovery_prefix, UID, timsId[i].c_str());
+            snprintf_P(topic, sizeof(topic), PSTR("%s/sensor/%s_%s/config"), globalConfig.mqtt.discovery_prefix, UID, timsId[i].c_str());
             Mqtt::publish(topic, "", true);
         }
     }
