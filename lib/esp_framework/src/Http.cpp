@@ -132,6 +132,11 @@ void Http::handleRoot()
 
     server->sendContent_P(HTTP_HTML_TAB3_MODULE_START);
 
+    snprintf_P(tmpData, sizeof(tmpData), PSTR("<tr><td>Web用户名</td><td><input type='text' name='http_username' value='%s' maxlength='14'>&nbsp;留空关闭认证</td></tr>"
+                                               "<tr><td>Web密码</td><td><input type='password' name='http_password' value='%s' maxlength='14'></td></tr>"),
+               globalConfig.http.user, globalConfig.http.pass);
+    server->sendContent_P(tmpData);
+
     snprintf_P(tmpData, sizeof(tmpData), PSTR("<tr><td>主机名</td><td><input type='text' name='uid' value='%s'>&nbsp;具有唯一性，留空默认</td></tr>"), UID);
     server->sendContent_P(tmpData);
 
@@ -877,6 +882,11 @@ void Http::handleModuleSetting()
         strcpy(globalConfig.wifi.ntp, ntp.c_str());
         Rtc::init();
     }
+
+    String httpUsername = server->arg(F("http_username"));
+    String httpPassword = server->arg(F("http_password"));
+    strcpy(globalConfig.http.user, httpUsername.c_str());
+    strcpy(globalConfig.http.pass, httpPassword.c_str());
 
     String uid = server->arg(F("uid"));
     strcpy(globalConfig.uid, uid.c_str());
