@@ -32,9 +32,6 @@ void DC1::init()
     pinMode(LOGO_LED_PIN, OUTPUT);
     logoLed();
 
-    strcpy(powerStatTopic, Mqtt::getStatTopic(F("power1")).c_str());
-    strcpy(energyTeleTopic, Mqtt::getTeleTopic(F("energy")).c_str());
-
     channels = 4;
     for (uint8_t ch = 0; ch < channels; ch++)
     {
@@ -158,8 +155,6 @@ void DC1::mqttCallback(char *topic, char *payload, char *cmnd)
 
 void DC1::mqttConnected()
 {
-    strcpy(powerStatTopic, Mqtt::getStatTopic(F("power1")).c_str());
-    strcpy(energyTeleTopic, Mqtt::getTeleTopic(F("energy")).c_str());
     if (globalConfig.mqtt.discovery)
     {
         mqttDiscovery(true);
@@ -189,8 +184,10 @@ void DC1::mqttDiscovery(bool isEnable)
         snprintf_P(topic, sizeof(topic), PSTR("%s/switch/%s-%d/config"), globalConfig.mqtt.discovery_prefix, UID, (ch + 1));
         if (isEnable)
         {
-            cmndTopic[strlen(cmndTopic) - 1] = ch + 49;           // 48 + 1 + ch
-            powerStatTopic[strlen(powerStatTopic) - 1] = ch + 49; // 48 + 1 + ch
+            cmndTopic[strlen(cmndTopic) - 1] = ch + 49; // 48 + 1 + ch
+            char statTopic[100];
+            strcpy(statTopic, Mqtt::getStatTopic(F("power1")).c_str());
+            statTopic[strlen(statTopic) - 1] = ch + 49;
             snprintf_P(message, sizeof(message),
                     PSTR("{\"name\":\"%s\","
                          "\"unique_id\":\"%s_power%d\","
@@ -204,7 +201,7 @@ void DC1::mqttDiscovery(bool isEnable)
                     ch == 0 ? "总开关" : (ch == 1 ? "开关1" : (ch == 2 ? "开关2" : "开关3")),
                     UID, (ch + 1),
                     cmndTopic,
-                    powerStatTopic,
+                    statTopic,
                     deviceInfo,
                     availability.c_str());
             Mqtt::publish(topic, message, true);
@@ -475,8 +472,10 @@ void DC1::httpHa(ESP8266WebServer *server)
     server->sendContent(F("switch:\r\n"));
     for (size_t ch = 0; ch < channels; ch++)
     {
-        cmndTopic[strlen(cmndTopic) - 1] = ch + 49;           // 48 + 1 + ch
-        powerStatTopic[strlen(powerStatTopic) - 1] = ch + 49; // 48 + 1 + ch
+        cmndTopic[strlen(cmndTopic) - 1] = ch + 49; // 48 + 1 + ch
+        char statTopic[100];
+        strcpy(statTopic, Mqtt::getStatTopic(F("power1")).c_str());
+        statTopic[strlen(statTopic) - 1] = ch + 49;
 
         snprintf_P(tmpData, sizeof(tmpData),
                    PSTR("  - platform: mqtt\r\n"
@@ -488,7 +487,7 @@ void DC1::httpHa(ESP8266WebServer *server)
                         "    availability_topic: \"%s\"\r\n"
                         "    payload_available: \"online\"\r\n"
                         "    payload_not_available: \"offline\"\r\n\r\n"),
-                   UID, ch + 1, powerStatTopic, cmndTopic, availability.c_str());
+                   UID, ch + 1, statTopic, cmndTopic, availability.c_str());
         server->sendContent_P(tmpData);
     }
 
@@ -588,8 +587,12 @@ void DC1::switchRelay(uint8_t ch, bool isOn, bool isSave)
 
     bitWrite(lastState, ch, isOn);
 
-    powerStatTopic[strlen(powerStatTopic) - 1] = ch + 49; // 48 + 1 + ch
-    Mqtt::publish(powerStatTopic, isOn ? "on" : "off", globalConfig.mqtt.retain);
+    {
+        char statTopic[100];
+        strcpy(statTopic, Mqtt::getStatTopic(F("power1")).c_str());
+        statTopic[strlen(statTopic) - 1] = ch + 49;
+        Mqtt::publish(statTopic, isOn ? "on" : "off", globalConfig.mqtt.retain);
+    }
 
     if (isSave && config.power_on_state > 0)
     {
@@ -966,14 +969,16 @@ void DC1::energyShow(bool isMqtt)
 void DC1::reportEnergy()
 {
     energyShow(true);
-    Mqtt::publish(energyTeleTopic, tmpData, globalConfig.mqtt.retain);
+    Mqtt::publish(Mqtt::getTeleTopic(F("energy")).c_str(), tmpData, globalConfig.mqtt.retain);
 }
 
 void DC1::reportPower()
 {
     for (size_t ch = 0; ch < channels; ch++)
     {
-        powerStatTopic[strlen(powerStatTopic) - 1] = ch + 49; // 48 + 1 + ch
-        Mqtt::publish(powerStatTopic, bitRead(lastState, ch) ? "on" : "off", globalConfig.mqtt.retain);
+        char statTopic[100];
+        strcpy(statTopic, Mqtt::getStatTopic(F("power1")).c_str());
+        statTopic[strlen(statTopic) - 1] = ch + 49;
+        Mqtt::publish(statTopic, bitRead(lastState, ch) ? "on" : "off", globalConfig.mqtt.retain);
     }
 }
