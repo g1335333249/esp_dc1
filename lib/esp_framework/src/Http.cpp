@@ -200,7 +200,7 @@ void Http::handleRoot()
 
     snprintf_P(tmpData, sizeof(tmpData),
                PSTR("<table class='gridtable'><thead><tr><th colspan='2'>固件升级</th></tr></thead><tbody>"
-                    "<tr><td>当前版本</td><td>v%s</td></tr>"
+                    "<tr><td>当前版本</td><td>%s</td></tr>"
                     "<tr><td>编译时间</td><td>%s</td></tr>"),
                module ? module->getModuleVersion().c_str() : PSTR("0"), Rtc::GetBuildDateAndTime().c_str());
     server->sendContent_P(tmpData);
