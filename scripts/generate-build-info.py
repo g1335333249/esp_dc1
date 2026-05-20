@@ -2,9 +2,9 @@ Import('env')
 import datetime
 import os
 
-# 使用北京时间（Asia/Shanghai），避免 CI 服务器 UTC 时差问题
-now = datetime.datetime.now(datetime.timezone.utc).astimezone(datetime.timezone(datetime.timedelta(hours=8)))
-version = now.strftime("%y%m%d")
+# 固定使用北京时间 UTC+8（中国不实行夏令时）
+now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8)))
+version = now.strftime("%Y%m%d")
 date_str = now.strftime("%Y-%m-%d %H:%M:%S")
 
 header = '''#pragma once
