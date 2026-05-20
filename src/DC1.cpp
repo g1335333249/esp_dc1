@@ -637,11 +637,11 @@ void DC1::checkButton(uint8_t ch)
         }
         else
         { // buttonTiming = true
-            if (millis() >= (buttonTimingStart[ch] + buttonDebounceTime))
+            if (buttonAction[ch] != 1 && millis() >= (buttonTimingStart[ch] + buttonDebounceTime))
             {
                 buttonAction[ch] = 1;
             }
-            if (millis() >= (buttonTimingStart[ch] + buttonLongPressTime))
+            if (buttonAction[ch] != 2 && millis() >= (buttonTimingStart[ch] + buttonLongPressTime))
             {
                 buttonAction[ch] = 2;
             }
