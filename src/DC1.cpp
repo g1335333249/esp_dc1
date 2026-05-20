@@ -493,6 +493,7 @@ void DC1::httpHa(ESP8266WebServer *server)
 
     String tims[] = {F("voltage"), F("current"), F("power"), F("apparent_power"), F("reactive_power"), F("factor"), F("total"), F("yesterday"), F("today"), F("starttime")};
     String tims2[] = {F("V"), F("A"), F("W"), F("VA"), F("VAr"), F(""), F("kWh"), F("kWh"), F("kWh"), F("")};
+    String energyTopic = Mqtt::getTeleTopic(F("energy"));
     server->sendContent_P(PSTR("sensor:\r\n"));
     for (size_t i = 0; i < 10; i++)
     {
@@ -503,7 +504,7 @@ void DC1::httpHa(ESP8266WebServer *server)
                             "    name: \"%s_%s\"\r\n"
                             "    state_topic: \"%s\"\r\n"
                             "    value_template: \"{{value_json.%s}}\"\r\n\r\n"),
-                       UID, tims[i].c_str(), energyTeleTopic, tims[i].c_str());
+                       UID, tims[i].c_str(), energyTopic.c_str(), tims[i].c_str());
         }
         else
         {
@@ -513,7 +514,7 @@ void DC1::httpHa(ESP8266WebServer *server)
                             "    state_topic: \"%s\"\r\n"
                             "    value_template: \"{{value_json.%s}}\"\r\n"
                             "    unit_of_measurement: \"%s\"\r\n\r\n"),
-                       UID, tims[i].c_str(), energyTeleTopic, tims[i].c_str(), tims2[i].c_str());
+                       UID, tims[i].c_str(), energyTopic.c_str(), tims[i].c_str(), tims2[i].c_str());
         }
         server->sendContent_P(tmpData);
     }
