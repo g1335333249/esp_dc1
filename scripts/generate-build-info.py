@@ -15,7 +15,7 @@ header = '''#pragma once
 #define BUILD_DATE "{}"
 '''.format(version, date_str)
 
-build_info_path = os.path.join(env['PROJECT_DIR'], 'include', 'BuildInfo.h')
+build_info_path = os.path.join(env['PROJECT_DIR'], 'lib', 'esp_framework', 'include', 'BuildInfo.h')
 with open(build_info_path, 'w') as f:
     f.write(header)
 
